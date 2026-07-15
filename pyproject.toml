@@ -1,0 +1,124 @@
+[project]
+name = "perseus"
+version = "1.0.0"
+description = "A framework for training personalization models over heterogeneous sequences of user events, for any downstream task"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "cyclopts==4.16.1",
+    "python-dotenv==1.2.2",
+    "pydantic==2.13.4",
+    "structlog==25.5.0",
+    "pyarrow==24.0.0",
+    "polars==1.41.2",
+    "numpy==2.4.6",
+    "scikit-learn==1.8.0",
+    "joblib==1.5.3",
+    "mmh3==5.2.1",
+    "tenacity==9.1.4",
+    "tokenizers==0.22.2",
+    "torch==2.12.0",
+    "transformers==5.9.0",
+    "accelerate==1.13.0",
+    "tqdm==4.67.3",
+]
+
+[project.optional-dependencies]
+clearml = ["clearml>=2,<3"]
+
+[dependency-groups]
+dev = [
+    "prek>=0.4,<0.5",
+    "ruff>=0.15.18,<0.16",
+    "pytest>=8,<9",
+    "pytest-cov>=6,<7",
+    "pytest-xdist>=3,<4",
+]
+
+[build-system]
+requires = ["uv_build>=0.11,<0.12"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-root = ""
+
+[tool.ruff]
+fix = true
+unsafe-fixes = true
+line-length = 120
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "D1",
+    "FA",
+    "ANN401",
+    "EM",
+    "TD",
+    "FIX",
+    "PGH003",
+    "PLW2901",
+    "B008",
+    "B020",
+    "TRY003",
+    "PLR1704",
+    "PLR2004",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = [
+    "S101",
+    "ANN",
+    "D",
+    "INP001",
+    "SLF001",
+    "ARG",
+    "S311",
+    "PLR0913",
+    "RUF001",
+    "RUF002",
+    "RUF003",
+    "ERA001",
+    "DTZ",
+    "FBT",
+]
+
+[tool.ruff.lint.isort]
+no-lines-before = ["standard-library", "local-folder"]
+known-third-party = []
+known-local-folder = ["whole_app"]
+
+[tool.ruff.lint.pylint]
+max-args = 20
+max-statements = 200
+max-branches = 50
+
+[tool.ruff.lint.mccabe]
+max-complexity = 50
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers --import-mode=importlib"
+
+[tool.coverage.run]
+source = ["perseus"]
+branch = true
+data_file = ".cache/.coverage"
+omit = [
+    "perseus/__main__.py",
+    "perseus/cli/*",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+exclude_lines = [
+    "pragma: no cover",
+    "if t.TYPE_CHECKING:",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "@(abc\\.)?abstractmethod",
+    "\\.\\.\\.",
+]
