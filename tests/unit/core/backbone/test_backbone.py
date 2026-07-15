@@ -1,4 +1,4 @@
-"""Тесты Backbone: сборка агрегаторов, forward (с контекстом и без), helper-методы, save/load."""
+"""Tests for Backbone: aggregator assembly, forward (with and without context), helper methods, save/load."""
 
 import torch
 
@@ -67,7 +67,7 @@ class TestHelpers:
         backbone = _backbone()
         positions = torch.tensor([[1, 2, 3], [1, 2, 0]], dtype=torch.int32)
         out = backbone._build_positions(positions, 0)
-        # добавляется 1 readout-позиция (нулевая)
+        # one readout position (zero) is added
         assert out.shape == (2, 4)
         assert out[:, -1].tolist() == [0, 0]
 
@@ -75,7 +75,7 @@ class TestHelpers:
         backbone = _backbone()
         positions = torch.tensor([[1, 2, 3]], dtype=torch.int32)
         out = backbone._build_positions(positions, 2)
-        # 2 context + 1 readout = 3 дополнительных нулевых позиции
+        # 2 context + 1 readout = 3 additional zero positions
         assert out.shape == (1, 6)
 
     def test_build_timestamps(self) -> None:
@@ -84,14 +84,14 @@ class TestHelpers:
         sample_timestamp = torch.tensor([9.0])
         out = backbone._build_timestamps(timestamps, sample_timestamp, 0)
         assert out.shape == (1, 4)
-        assert out[0, -1].item() == 9.0  # readout-таймстемп = таймстемп сэмпла
+        assert out[0, -1].item() == 9.0  # readout timestamp = sample timestamp
 
     def test_build_mask_shape_and_diagonal(self) -> None:
         backbone = _backbone()
         positions = torch.tensor([[1, 2, 3], [1, 2, 0]], dtype=torch.int32)
         mask = backbone._build_mask(positions, 0)
         assert mask.shape == (2, 4, 4)
-        # диагональ всегда False (токен видит сам себя)
+        # diagonal is always False (a token can see itself)
         diag = torch.arange(4)
         assert not mask[:, diag, diag].any()
 

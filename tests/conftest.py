@@ -1,4 +1,4 @@
-"""Общие фикстуры для всех тестов perseus."""
+"""Shared fixtures for all perseus tests."""
 
 import copy
 import typing as t
@@ -8,8 +8,8 @@ import pytest
 import torch
 import yaml
 
-# Минимальный валидный конфиг: одна задача classification, одно событие, backbone.
-# model_post_init сам добавит encoder/feature "event", поэтому здесь они не нужны.
+# Minimal valid config: one classification task, one event, backbone.
+# model_post_init adds the "event" encoder/feature itself, so they are not needed here.
 MINIMAL_CONFIG: dict[str, t.Any] = {
     "task": {
         "type": "classification",
@@ -22,13 +22,13 @@ MINIMAL_CONFIG: dict[str, t.Any] = {
 
 @pytest.fixture
 def minimal_config_dict() -> dict[str, t.Any]:
-    """Свежая копия минимального валидного конфига (dict)."""
+    """A fresh copy of the minimal valid config (dict)."""
     return copy.deepcopy(MINIMAL_CONFIG)
 
 
 @pytest.fixture
 def minimal_config_path(tmp_path: Path, minimal_config_dict: dict[str, t.Any]) -> Path:
-    """Минимальный конфиг, записанный в YAML во временный файл."""
+    """The minimal config written as YAML to a temporary file."""
     path = tmp_path / "config.yaml"
     with path.open("w") as f:
         yaml.safe_dump(minimal_config_dict, f, allow_unicode=True, sort_keys=False)
@@ -37,5 +37,5 @@ def minimal_config_path(tmp_path: Path, minimal_config_dict: dict[str, t.Any]) -
 
 @pytest.fixture(autouse=True)
 def _seed_torch() -> None:
-    """Детерминированность torch для всех тестов."""
+    """Deterministic torch for all tests."""
     torch.manual_seed(0)

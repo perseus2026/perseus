@@ -1,4 +1,4 @@
-"""Тест Dataset.save/load round-trip (на classification-задаче)."""
+"""Dataset.save/load round-trip test (on a classification task)."""
 
 import datetime as dt
 
@@ -43,5 +43,5 @@ def test_dataset_save_load_roundtrip(tmp_path) -> None:
     assert loaded.train_samples["client_id"].to_list() == ["c1"]
     assert loaded.test_samples["client_id"].to_list() == ["c2"]
     assert loaded.task_preprocessor.label_to_index == {"a": 0, "b": 1}
-    # event store перенесён и читается
+    # event store has been relocated and is readable
     assert loaded.event_store.open_reader(512).read("c1")["event"].to_list() == [1]

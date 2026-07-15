@@ -1,4 +1,4 @@
-"""Пошаговые тесты api.prepare_dataset."""
+"""Step-by-step tests for api.prepare_dataset."""
 
 import datetime as dt
 
@@ -67,7 +67,7 @@ def test_observe_events_observes_train_only() -> None:
     )
     observers = _observers()
     _observe_events(events, samples, observers, make_config())
-    # наблюдается только событие до sample_timestamp (purchase, 2024-01)
+    # only the event before sample_timestamp is observed (purchase, 2024-01)
     assert observers["event"].value_counts["value"].to_list() == ["purchase"]
 
 
@@ -77,7 +77,7 @@ def test_filter_samples_keeps_only_after_first_event() -> None:
     test = pl.DataFrame({"client_id": ["c1"], "timestamp": [dt.datetime(2023, 1, 1)]})
     train_out, test_out = _filter_samples(first_ts, train, test)
     assert train_out.height == 1
-    assert test_out.height == 0  # sample раньше первого события
+    assert test_out.height == 0  # sample earlier than the first event
 
 
 def test_observe_samples_noop_without_context() -> None:
@@ -106,7 +106,7 @@ def test_static_transform_events() -> None:
     preprocessors = _fit_encoders_preprocessors(observers, make_config())
     events = pl.DataFrame({"event": ["purchase", "view"]})
     out = _static_transform_events(events, preprocessors, make_config())
-    # event-имена заменены на целочисленные индексы
+    # event names are replaced with integer indices
     assert out["event"].dtype == pl.UInt32
 
 
@@ -133,6 +133,6 @@ def test_static_transform_basis_transforms_target_and_sorts() -> None:
         task_pre,
         make_config(),
     )
-    # target превращён в индексы и отсортирован по timestamp (c1 раньше c2)
+    # target is converted to indices and sorted by timestamp (c1 before c2)
     assert train_out["client_id"].to_list() == ["c1", "c2"]
     assert train_out["target"].to_list() == [0, 1]

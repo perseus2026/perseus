@@ -1,4 +1,4 @@
-"""Пошаговые тесты api.make_head_predictions."""
+"""Step-by-step tests for api.make_head_predictions."""
 
 import polars as pl
 
@@ -26,7 +26,7 @@ def test_create_dataloader_and_make_predictions(trained_checkpoint) -> None:
 
     assert set(predictions.columns) == {"_index", "prediction"}
     assert predictions.height == 3
-    # classification head → struct вероятностей по меткам a, b
+    # classification head → struct of probabilities over labels a, b
     assert predictions["prediction"].dtype == pl.Struct({"a": pl.Float32, "b": pl.Float32})
 
 

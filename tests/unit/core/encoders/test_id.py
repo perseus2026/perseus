@@ -1,4 +1,4 @@
-"""Тесты ID-энкодера: Observer, Preprocessor, Embedder."""
+"""Tests for the ID encoder: Observer, Preprocessor, Embedder."""
 
 import polars as pl
 import torch
@@ -30,7 +30,7 @@ class TestPreprocessor:
     def test_fit_assigns_one_based_indices_sorted_by_count(self) -> None:
         pre = self._fitted()
         mapping = dict(zip(pre.values["value"], pre.values["index"], strict=True))
-        # сортировка по count desc, value asc → a(3)=1, b(2)=2, c(1)=3
+        # sorted by count desc, value asc → a(3)=1, b(2)=2, c(1)=3
         assert mapping == {"a": 1, "b": 2, "c": 3}
         assert pre.cardinality == 3
         assert pre.has_unk is False
@@ -48,7 +48,7 @@ class TestPreprocessor:
     def test_static_transform_maps_known_and_unknown(self) -> None:
         pre = self._fitted()
         out = pre.static_transform(pl.Series(["a", "c", "zzz"]))
-        # a→1, c→3, неизвестное→cardinality+1=4
+        # a→1, c→3, unknown→cardinality+1=4
         assert out.to_list() == [1, 3, 4]
 
     def test_dynamic_transform_to_int32_tensor(self) -> None:
@@ -84,6 +84,6 @@ class TestEmbedder:
 
     def test_unknown_index_maps_to_unknown_embedding(self) -> None:
         emb = self._embedder(dim=4)
-        # cardinality=3, num_embeddings=4 → индекс 4 трактуется как unknown
+        # cardinality=3, num_embeddings=4 → index 4 is treated as unknown
         out = emb(torch.tensor([4], dtype=torch.int32))
         assert torch.allclose(out[0], emb.unknown_embedding, atol=1e-6)

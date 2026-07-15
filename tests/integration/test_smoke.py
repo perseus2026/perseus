@@ -1,4 +1,4 @@
-"""Изолированные смоук-тесты top-level api-этапов (полный прогон каждого entrypoint отдельно)."""
+"""Isolated smoke tests for the top-level api stages (a full run of each entrypoint separately)."""
 
 import polars as pl
 
@@ -41,7 +41,7 @@ def test_smoke_prepare_dataset(tmp_path, monkeypatch) -> None:
     assert "event" in prepared.encoder_to_preprocessor
     assert dataset.task_preprocessor.label_to_index == {"a": 0, "b": 1}
     assert dataset.train_samples.height == 2
-    # события записаны в event store и читаются
+    # events are written to the event store and can be read back
     reader = dataset.event_store.open_reader(config.max_events_per_sequence)
     assert reader.read("c1").height >= 1
 
@@ -88,5 +88,5 @@ def test_smoke_make_head_predictions(monkeypatch) -> None:
 
 
 def test_smoke_embed_artifacts() -> None:
-    # classification-задача не имеет artifacts-фич → embed возвращает None (полный прогон entrypoint)
+    # a classification task has no artifact features -> embed returns None (a full entrypoint run)
     assert embed_artifacts(None, build_trained()) is None

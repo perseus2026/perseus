@@ -1,4 +1,4 @@
-"""Тесты утилит: cyclopts.parse_json_mapping, logging.configure."""
+"""Tests for utilities: cyclopts.parse_json_mapping, logging.configure."""
 
 import logging
 import types

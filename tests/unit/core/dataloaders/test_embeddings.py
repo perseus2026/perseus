@@ -1,4 +1,4 @@
-"""Тесты dataloaders.embeddings: датасет, collate, DataLoader."""
+"""Tests for dataloaders.embeddings: dataset, collate, DataLoader."""
 
 import polars as pl
 import torch
@@ -7,7 +7,7 @@ from perseus.core.dataloaders.embeddings import _collate_embeddings, _Embeddings
 
 
 def _samples() -> pl.DataFrame:
-    # колонка embeddings — Array (фиксированный размер), как в production (.to_torch требует Array)
+    # the embeddings column is an Array (fixed size), as in production (.to_torch requires Array)
     return pl.DataFrame(
         {"embeddings": [[1.0, 2.0], [3.0, 4.0]], "_index": [0, 1]},
         schema_overrides={"embeddings": pl.Array(pl.Float32, 2)},

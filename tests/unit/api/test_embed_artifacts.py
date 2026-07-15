@@ -1,4 +1,4 @@
-"""Тесты шагов api.embed_artifacts: _init (диспетчеризация) и embed_artifacts."""
+"""Tests for api.embed_artifacts steps: _init (dispatch) and embed_artifacts."""
 
 import types
 
@@ -34,5 +34,5 @@ class TestInit:
 
 
 def test_embed_artifacts_returns_none_when_no_artifact_features(trained_checkpoint) -> None:
-    # минимальный classification-конфиг не имеет artifacts-фич → embed возвращает None
+    # the minimal classification config has no artifact features → embed returns None
     assert embed_artifacts(None, trained_checkpoint) is None

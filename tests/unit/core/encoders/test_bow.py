@@ -1,4 +1,4 @@
-"""Тесты BoW-энкодера (BPE-токенизатор): Observer, Preprocessor, Embedder."""
+"""Tests for the BoW encoder (BPE tokenizer): Observer, Preprocessor, Embedder."""
 
 import polars as pl
 import torch
@@ -33,7 +33,7 @@ class TestPreprocessor:
         tensor = pre.dynamic_transform(token_ids)
         assert tensor.dtype == torch.int32
         assert tensor.ndim == 2
-        assert tensor.shape[0] == 2  # все строки одной длины (паддинг)
+        assert tensor.shape[0] == 2  # all rows have the same length (padding)
 
     def test_save_load_roundtrip(self, tmp_path) -> None:
         pre = _fitted()
@@ -54,7 +54,7 @@ class TestEmbedder:
         assert torch.isfinite(out).all()
 
     def test_padding_does_not_break_mean(self) -> None:
-        # строка с разным числом токенов → паддинг нулями, без деления на ноль
+        # rows with different token counts → zero padding, without division by zero
         pre = _fitted()
         token_ids = pre.static_transform(pl.Series(["hello world foo bar", "foo"]))
         out = Embedder.init(pre, 8)(pre.dynamic_transform(token_ids))

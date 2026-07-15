@@ -1,8 +1,8 @@
-"""Тесты метрик retrieval.
+"""Tests for retrieval metrics.
 
-Часть метрик (HitRate/Mrr/Precision/Recall/Ndcg) работает на «подготовленных» samples
-с колонками-списками prediction_relevances/target_relevances. Остальные — на сыром
-prediction (список структур {item, score}). artifacts подменяется на объект с .items.
+Some metrics (HitRate/Mrr/Precision/Recall/Ndcg) operate on "prepared" samples
+with list columns prediction_relevances/target_relevances. The rest operate on the raw
+prediction (a list of structs {item, score}). artifacts is replaced with an object holding .items.
 """
 
 import types
@@ -33,7 +33,7 @@ def _artifacts(items: pl.DataFrame) -> types.SimpleNamespace:
 
 @pytest.fixture
 def prepared() -> pl.DataFrame:
-    # q0: предсказанные релевантности [1,0,0], целевые [1]; q1: [0,2] и [2]
+    # q0: predicted relevances [1,0,0], target [1]; q1: [0,2] and [2]
     return pl.DataFrame(
         {
             "prediction_relevances": [[1.0, 0.0, 0.0], [0.0, 2.0]],
@@ -48,7 +48,7 @@ def _predictions(rows: list[list[tuple[str, float]]]) -> pl.DataFrame:
     )
 
 
-# --- метрики на prediction_relevances ---
+# --- metrics on prediction_relevances ---
 
 
 def test_hit_rate(prepared: pl.DataFrame) -> None:
@@ -57,17 +57,17 @@ def test_hit_rate(prepared: pl.DataFrame) -> None:
 
 
 def test_mrr_is_reciprocal_rank(prepared: pl.DataFrame) -> None:
-    # q0 первый релевантный на позиции 1 → 1/1; q1 на позиции 2 → 1/2 → mean 0.75
+    # q0 first relevant item at position 1 -> 1/1; q1 at position 2 -> 1/2 -> mean 0.75
     assert MrrAtK(k=3).calculate(prepared, None) == pytest.approx(0.75)
 
 
 def test_precision(prepared: pl.DataFrame) -> None:
-    # q0: 1 релевантный из top2 /2 = 0.5; q1: 1/2 = 0.5
+    # q0: 1 relevant out of top2 /2 = 0.5; q1: 1/2 = 0.5
     assert PrecisionAtK(k=2).calculate(prepared, None) == pytest.approx(0.5)
 
 
 def test_recall(prepared: pl.DataFrame) -> None:
-    # каждый запрос находит свой единственный релевантный → 1.0
+    # each query finds its single relevant item -> 1.0
     assert RecallAtK(k=2).calculate(prepared, None) == pytest.approx(1.0)
 
 
@@ -86,7 +86,7 @@ def test_ndcg_imperfect_in_unit_range(prepared: pl.DataFrame) -> None:
     assert 0.0 < value <= 1.0
 
 
-# --- _prepare_samples и Evaluator ---
+# --- _prepare_samples and Evaluator ---
 
 
 def test_prepare_samples_builds_relevance_lists() -> None:
@@ -97,7 +97,7 @@ def test_prepare_samples_builds_relevance_lists() -> None:
         },
     )
     out = Evaluator({})._prepare_samples(samples, None)
-    # prediction_relevances: релевантности в порядке убывания score → B(2),A(1),C(0)
+    # prediction_relevances: relevances in descending score order -> B(2),A(1),C(0)
     assert out["prediction_relevances"].to_list() == [[2, 1, 0]]
     assert out["target_relevances"].to_list() == [[1, 2]]
 
@@ -107,27 +107,27 @@ def test_evaluator_predict_kwargs_uses_max_k() -> None:
     assert evaluator.predict_kwargs == {"k": 10}
 
 
-# --- метрики на сыром prediction + artifacts ---
+# --- metrics on raw prediction + artifacts ---
 
 
 def test_coverage() -> None:
     samples = _predictions([[("A", 0.9), ("B", 0.5)], [("A", 0.8), ("C", 0.3)]])
     artifacts = _artifacts(pl.DataFrame({"item": ["A", "B", "C", "D"]}))
-    # рекомендованы distinct {A,B,C}=3 из 4 → 0.75
+    # recommended distinct {A,B,C}=3 out of 4 -> 0.75
     assert CoverageAtK(k=2).calculate(samples, artifacts) == pytest.approx(0.75)
 
 
 def test_max_streak() -> None:
     samples = _predictions([[("A", 0.9), ("B", 0.5)], [("A", 0.8), ("C", 0.3)]])
     artifacts = _artifacts(pl.DataFrame({"item": ["A", "B", "C"], "cat": ["x", "x", "y"]}))
-    # q0 cats [x,x] streak 2; q1 [x,y] streak 1 → mean 1.5
+    # q0 cats [x,x] streak 2; q1 [x,y] streak 1 -> mean 1.5
     assert MaxStreakAtK(k=2, feature="cat").calculate(samples, artifacts) == pytest.approx(1.5)
 
 
 def test_entropy() -> None:
     samples = _predictions([[("A", 0.9), ("B", 0.5)], [("A", 0.8), ("C", 0.3)]])
     artifacts = _artifacts(pl.DataFrame({"item": ["A", "B", "C"], "cat": ["x", "x", "y"]}))
-    # q0 энтропия 0, q1 энтропия 1 → mean 0.5
+    # q0 entropy 0, q1 entropy 1 -> mean 0.5
     assert EntropyAtK(k=2, feature="cat").calculate(samples, artifacts) == pytest.approx(0.5)
 
 

@@ -1,4 +1,4 @@
-"""Тесты regression target: Preprocessor, Layer, Criterion, Head, Artifacts."""
+"""Tests for regression target: Preprocessor, Layer, Criterion, Head, Artifacts."""
 
 import polars as pl
 import pytest
@@ -26,7 +26,7 @@ class TestPreprocessor:
 
     def test_standard_scaler_centers_data(self) -> None:
         pre = _fit("standard")
-        # среднее обучающей выборки (3.0) → ~0 после стандартизации
+        # training-set mean (3.0) -> ~0 after standardization
         assert pre.static_transform(pl.Series([3.0]))[0] == pytest.approx(0.0, abs=1e-5)
 
     def test_dynamic_transform_is_identity(self) -> None:
@@ -77,8 +77,8 @@ class TestCriterion:
 
 
 class TestHead:
-    # predict вызывается в production под @torch.no_grad (см. make_head_predictions),
-    # regression-версия зовёт .numpy() и требует этого контекста — воспроизводим его.
+    # predict is called in production under @torch.no_grad (see make_head_predictions),
+    # the regression version calls .numpy() and requires this context -- we reproduce it here.
     def test_predict_returns_float_series(self) -> None:
         pre = _fit("standard")
         head = Head.init(pre, Layer.init(pre, 4))

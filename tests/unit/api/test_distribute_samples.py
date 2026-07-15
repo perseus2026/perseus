@@ -1,4 +1,4 @@
-"""Тест api.distribute_samples."""
+"""Test for api.distribute_samples."""
 
 import polars as pl
 
@@ -13,10 +13,10 @@ def test_distribute_samples_yields_partitions_with_index() -> None:
     seen_clients = set()
     for pid, part in out:
         assert isinstance(pid, int)
-        # partition_id убран, добавлен _index
+        # partition_id is removed, _index is added
         assert "partition_id" not in part.schema
         assert "_index" in part.schema
         assert part["_index"].to_list() == list(range(len(part)))
         seen_clients.update(part["client_id"].to_list())
-    # все клиенты распределены
+    # all clients are distributed
     assert seen_clients == {"c1", "c2", "c3"}

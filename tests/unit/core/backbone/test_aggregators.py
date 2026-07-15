@@ -1,4 +1,4 @@
-"""Тесты event- и context-агрегаторов backbone + реестры."""
+"""Tests for backbone event and context aggregators + registries."""
 
 import pytest
 import torch
@@ -9,7 +9,7 @@ from perseus.core.backbone import context, event, history
 class TestEventAggregators:
     @pytest.mark.parametrize("name", ["sum", "weighted_sum", "concat"])
     def test_forward_reduces_feature_dim(self, name: str) -> None:
-        # вход (B, L, num_features, dim) → выход (B, L, dim)
+        # input (B, L, num_features, dim) → output (B, L, dim)
         aggregator = event.registry[name](4, 2)
         out = aggregator(torch.randn(2, 3, 2, 4))
         assert out.shape == (2, 3, 4)

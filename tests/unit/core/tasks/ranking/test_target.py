@@ -1,4 +1,4 @@
-"""Тесты ranking target: Preprocessor, Layer (агрегаторы), Criterion, Head, Artifacts."""
+"""Tests for ranking target: Preprocessor, Layer (aggregators), Criterion, Head, Artifacts."""
 
 import polars as pl
 import pytest
@@ -22,7 +22,7 @@ class TestLayer:
     def test_forward_shape(self, aggregator: str) -> None:
         layer = Layer.init(_preprocessor(), 4, item_aggregator=aggregator)
         out = layer(torch.randn(5, 4), _embedded_artifacts(5, 2, 4))
-        assert out.shape == (5, 2)  # 2 метки (click, buy)
+        assert out.shape == (5, 2)  # 2 labels (click, buy)
 
     @pytest.mark.parametrize("aggregator", ["sum", "weighted_sum", "concat"])
     def test_save_load_roundtrip(self, aggregator: str, tmp_path) -> None:
@@ -39,7 +39,7 @@ class TestCriterion:
     def test_forward_bce_scalar(self) -> None:
         layer = Layer.init(_preprocessor(), 4, item_aggregator="sum")
         criterion = Criterion.init(_preprocessor(), layer)
-        # target = (row_indices, item_indices, labels); labels — (N, num_labels) float
+        # target = (row_indices, item_indices, labels); labels are (N, num_labels) float
         row_indices = [0, 1, 2, 3, 4]
         labels = torch.randint(0, 2, (5, 2)).float()
         target = (row_indices, torch.arange(5), labels)
@@ -102,9 +102,9 @@ class TestPreprocessorFit:
         artifacts = Artifacts(pl.DataFrame({"item": ["A", "B"]}))
         pre = Preprocessor.fit(_target_values(), artifacts, {})
         out = pre.static_transform(_target_values())
-        first = out[0]  # элемент struct-серии → dict
+        first = out[0]  # element of a struct series -> dict
         assert list(first["item_indices"]) == [0, 1]
-        # метки click,buy для A=[1,0], B=[0,1]
+        # labels click,buy for A=[1,0], B=[0,1]
         assert [list(arr) for arr in first["labels"]] == [[1, 0], [0, 1]]
 
     def test_dynamic_transform_unpacks_struct(self) -> None:

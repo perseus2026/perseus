@@ -1,4 +1,4 @@
-"""Пошаговые тесты api.make_backbone_embeddings."""
+"""Step-by-step tests for api.make_backbone_embeddings."""
 
 import datetime as dt
 
@@ -49,7 +49,7 @@ def test_filter_samples_drops_samples_before_first_event() -> None:
         },
     )
     out = _filter_samples(samples, events)
-    # c2 имеет sample (2023) раньше первого события (2024) → отфильтрован
+    # c2 has a sample (2023) earlier than its first event (2024) → filtered out
     assert out["client_id"].to_list() == ["c1"]
 
 

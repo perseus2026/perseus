@@ -1,4 +1,4 @@
-"""Тесты retrieval target: Preprocessor, Layer, Criterion, Artifacts, Head (включая predict)."""
+"""Tests for retrieval target: Preprocessor, Layer, Criterion, Artifacts, Head (including predict)."""
 
 import polars as pl
 import pytest
@@ -47,7 +47,7 @@ class TestPreprocessor:
         assert out.to_list() == [[0, 2], [1]]
 
     def test_collate_full_softmax(self) -> None:
-        # sample_negatives=None → лейблы по всем айтемам
+        # sample_negatives=None -> labels over all items
         pre = _fitted()
         item_indices, labels, logq = pre.collate([[0, 1], [2]])
         assert item_indices.tolist() == [0, 1, 2]
@@ -57,7 +57,7 @@ class TestPreprocessor:
     def test_collate_with_negative_sampling(self) -> None:
         pre = _fitted(sample_negatives=1)
         item_indices, labels, logq = pre.collate([[0]])
-        # позитив {0} + до 1 негатива
+        # positive {0} + up to 1 negative
         assert 0 in item_indices.tolist()
         assert labels.shape == (1, len(item_indices))
         assert logq.shape == (len(item_indices),)
@@ -192,7 +192,7 @@ class TestHeadPredict:
         backbone, embedded = _predict_inputs()
         with torch.no_grad():
             out = head.predict(backbone, embedded, {}, k=2)
-        assert len(out) == 2  # по строке на каждый запрос
+        assert len(out) == 2  # one row per query
         first = out[0]
         assert len(first) == 2  # top-2
         assert all("item" in e and "score" in e for e in first)
@@ -201,7 +201,7 @@ class TestHeadPredict:
         pre = _fitted()
         head = Head.init(pre, Layer.init(pre, 8, item_aggregator="sum"), ranker="naive")
         backbone, embedded = _predict_inputs()
-        extras = {"items": [["A"], ["B"]]}  # ранее показанные айтемы по строкам
+        extras = {"items": [["A"], ["B"]]}  # previously shown items per row
         with torch.no_grad():
             out = head.predict(backbone, embedded, extras, k=2, only_new=True)
         assert len(out) == 2
@@ -210,7 +210,7 @@ class TestHeadPredict:
         pre = _fitted()
         head = Head.init(pre, Layer.init(pre, 8, item_aggregator="sum"), allow_unknown_items=False)
         backbone = torch.randn(2, 8)
-        embedded = (["Z", "Y"], torch.randn(2, 2, 8))  # айтемов нет среди известных
+        embedded = (["Z", "Y"], torch.randn(2, 2, 8))  # items not among the known ones
         with torch.no_grad():
             out = head.predict(backbone, embedded, {}, k=2)
         assert out.to_list() == [[], []]

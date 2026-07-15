@@ -131,7 +131,7 @@ class MrrAtK(AtKMetric):
             samples.lazy()
             .group_by("qid")
             .agg(
-                # обратный ранг первого релевантного в top-k (1/rank); 0, если релевантного в top-k нет
+                # reciprocal rank of the first relevant item in top-k (1/rank); 0 if none is relevant in top-k
                 value=pl.when(relevant_in_top_k.any()).then(1.0 / (relevant_in_top_k.arg_max() + 1)).otherwise(0.0),
             )
             .select("value")

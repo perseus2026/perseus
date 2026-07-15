@@ -1,4 +1,4 @@
-"""Тесты ранкеров retrieval: Naive, Smmr, _softmax."""
+"""Tests for retrieval rankers: Naive, Smmr, _softmax."""
 
 import pytest
 import torch
@@ -12,7 +12,7 @@ def test_naive_returns_topk() -> None:
     indices, values = ranker.top(logits, k=2)
     assert indices.shape == (2, 2)
     assert values.shape == (2, 2)
-    # топ-1 по строкам: айтем 1 и айтем 2
+    # top-1 per row: item 1 and item 2
     assert indices[:, 0].tolist() == [1, 2]
 
 
@@ -29,7 +29,7 @@ class TestSmmr:
         indices, values = Smmr(item_embeddings, pool_size=5).top(logits, k=3)
         assert indices.shape == (2, 3)
         assert values.shape == (2, 3)
-        # выбранные индексы валидны и уникальны в пределах строки
+        # selected indices are valid and unique within a row
         for row in indices.tolist():
             assert len(set(row)) == len(row)
 

@@ -1,4 +1,4 @@
-"""Тесты RAM-бэкенда event store и диспетчера EventStore."""
+"""Tests for the RAM backend of the event store and the EventStore dispatcher."""
 
 import datetime as dt
 
@@ -54,7 +54,7 @@ def test_max_events_per_sequence_truncates(store: EventStore) -> None:
 def test_before_filter_and_position_reindex(store: EventStore) -> None:
     reader = store.open_reader(512)
     out = reader.read("c1", before=dt.datetime(2024, 1, 3))
-    # остаются события 2024-01-01 и 2024-01-02; позиция переиндексируется с 1
+    # events 2024-01-01 and 2024-01-02 remain; position is reindexed from 1
     assert out["event"].to_list() == ["a", "b"]
     assert out["position"].to_list() == [1, 2]
 

@@ -1,4 +1,4 @@
-"""Тесты event_hub: распределение по партициям, имена файлов, Reader."""
+"""Tests for event_hub: distribution across partitions, file names, Reader."""
 
 import datetime as dt
 
@@ -15,10 +15,10 @@ def test_distribute_to_partitions_assigns_partition_id() -> None:
     out = distribute_to_partitions(samples)
     assert "partition_id" in out.schema
     assert len(out) == 4
-    # партиции в диапазоне [1, 100]
+    # partitions are in the range [1, 100]
     assert out["partition_id"].min() >= 1
     assert out["partition_id"].max() <= 100
-    # один client_id → одна партиция
+    # a single client_id -> a single partition
     assert out.filter(pl.col("client_id") == "c1")["partition_id"].n_unique() == 1
 
 
@@ -34,7 +34,7 @@ def config_fixture() -> Config:
 
 
 def test_reader_init_missing_source_raises(config_fixture: Config, monkeypatch) -> None:
-    # убираем любые internal_storage_* из окружения → источник event_hub не подключён
+    # remove any internal_storage_* from the environment -> the event_hub source is not connected
     for key in list(__import__("os").environ):
         if key.lower().startswith("internal_storage_"):
             monkeypatch.delenv(key, raising=False)
@@ -44,7 +44,7 @@ def test_reader_init_missing_source_raises(config_fixture: Config, monkeypatch) 
 
 @pytest.fixture
 def event_hub_dir(tmp_path, monkeypatch) -> "Path":  # noqa: F821
-    # синтетический источник: <storage>/purchase/<date>/0001.pq
+    # synthetic source: <storage>/purchase/<date>/0001.pq
     event_dir = tmp_path / "purchase" / "2024-01-01"
     event_dir.mkdir(parents=True)
     pl.DataFrame(
@@ -73,21 +73,21 @@ def test_reader_read_flattens_events(config_fixture: Config, event_hub_dir) -> N
     assert events is not None
     assert set(events.columns) >= {"client_id", "timestamp", "event", "position"}
     assert events["event"].unique().to_list() == ["purchase"]
-    # c1 имеет 2 события, c2 — одно
+    # c1 has 2 events, c2 has one
     assert events.filter(pl.col("client_id") == "c1").height == 2
     assert events.filter(pl.col("client_id") == "c2").height == 0
 
 
 def test_reader_read_returns_none_for_empty_partition(config_fixture: Config, event_hub_dir) -> None:
     reader = Reader(config_fixture)
-    # партиция без событий → нет файла 0099.pq → None
+    # a partition with no events -> no 0099.pq file -> None
     samples = pl.DataFrame({"client_id": ["c1"]})
     assert reader.read(99, samples) is None
 
 
 def test_readerconfig_fixture_cached_properties(config_fixture: Config, event_hub_dir) -> None:
     reader = Reader(config_fixture)
-    # минимальный конфиг: только событие "purchase" без атрибутов и мульти-полей
+    # minimal config: only the "purchase" event with no attributes or multi-fields
     assert reader._event_to_multi_attributes == {}
     assert reader._attribute_to_multi == {"event": False}
     assert reader._event_to_max_duration == {}
@@ -96,7 +96,7 @@ def test_readerconfig_fixture_cached_properties(config_fixture: Config, event_hu
 
 @pytest.fixture
 def multi_attr_source(tmp_path, monkeypatch) -> Config:
-    """Источник с мульти-атрибутным событием purchase и скалярным view + конфиг под них."""
+    """Source with a multi-attribute purchase event and a scalar view, plus a config for them."""
     purchase_dir = tmp_path / "purchase" / "2024-01-28"
     purchase_dir.mkdir(parents=True)
     pl.DataFrame(
@@ -155,10 +155,10 @@ def test_reader_read_multi_attrs_explodes_and_filters(multi_attr_source: Config)
     assert events is not None
     assert set(events["event"].unique().to_list()) == {"purchase", "view"}
     assert "position" in events.columns
-    # purchase события имеют item (после explode), view — null item
+    # purchase events have item (after explode), view has null item
     purchase = events.filter(pl.col("event") == "purchase")
     view = events.filter(pl.col("event") == "view")
     assert purchase["item"].null_count() == 0
     assert view["item"].null_count() == view.height
-    # max_tokens=3 → у каждого purchase-события не более 3 токенов (после explode суммарно <= 3 на событие)
-    assert purchase.height <= 2 * 3  # 2 purchase события * 3 токена
+    # max_tokens=3 -> each purchase event has at most 3 tokens (after explode, <= 3 in total per event)
+    assert purchase.height <= 2 * 3  # 2 purchase events * 3 tokens

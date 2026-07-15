@@ -1,4 +1,4 @@
-"""Тесты реестров оптимизаторов и шедулеров."""
+"""Tests for the optimizer and scheduler registries."""
 
 from torch import optim
 

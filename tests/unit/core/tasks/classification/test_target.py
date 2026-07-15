@@ -1,4 +1,4 @@
-"""Тесты classification target: Preprocessor, Layer, Criterion, Head, Artifacts."""
+"""Tests for classification target: Preprocessor, Layer, Criterion, Head, Artifacts."""
 
 import polars as pl
 import pytest
@@ -39,7 +39,7 @@ class TestPreprocessor:
 
 class TestLayer:
     def test_forward_shape_matches_num_classes(self) -> None:
-        layer = Layer.init(_fit(), 4)  # 3 класса
+        layer = Layer.init(_fit(), 4)  # 3 classes
         out = layer(torch.randn(2, 4), None)
         assert out.shape == (2, 3)
 
@@ -68,7 +68,7 @@ class TestHead:
         head = Head.init(pre, Layer.init(pre, 4))
         out = head.predict(torch.randn(5, 4), None, {})
         assert out.dtype == pl.Struct({"a": pl.Float32, "b": pl.Float32, "c": pl.Float32})
-        # softmax → вероятности по строке суммируются в 1
+        # softmax -> per-row probabilities sum to 1
         first = out[0]
         assert sum(first.values()) == pytest.approx(1.0, abs=1e-5)
 

@@ -1,4 +1,4 @@
-"""Тесты api.add_events: валидация схемы и запись событий в партиции event-hub."""
+"""Tests for api.add_events: schema validation and writing events into event-hub partitions."""
 
 import datetime as dt
 
@@ -11,7 +11,7 @@ from perseus.core.event_hub import filename, partition_id
 
 @pytest.fixture
 def storage(tmp_path, monkeypatch):
-    """Подключаем источник event_hub к временной директории."""
+    """Point the event_hub source at a temporary directory."""
     monkeypatch.setenv("INTERNAL_STORAGE_EVENT_HUB", str(tmp_path))
     return tmp_path
 
@@ -59,10 +59,10 @@ def test_writes_partitioned_by_date(storage) -> None:
 
     event_dir = storage / "purchase"
     dates = sorted(p.name for p in event_dir.iterdir())
-    # события разнесены по двум датам
+    # events are split across two dates
     assert dates == ["2024-01-01", "2024-01-02"]
 
-    # все записанные файлы имеют валидное имя партиции и не содержат partition_id
+    # every written file has a valid partition name and does not contain partition_id
     for date_dir in event_dir.iterdir():
         for pq in date_dir.iterdir():
             assert pq.name == filename(partition_id(pq.name))

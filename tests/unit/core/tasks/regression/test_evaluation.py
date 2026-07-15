@@ -1,4 +1,4 @@
-"""Тесты метрик регрессии и Evaluator."""
+"""Tests for regression metrics and Evaluator."""
 
 import polars as pl
 import pytest
