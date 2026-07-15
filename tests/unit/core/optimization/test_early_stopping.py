@@ -1,4 +1,4 @@
-"""Тесты стейт-машины EarlyStopping."""
+"""Tests for the EarlyStopping state machine."""
 
 import pytest
 
@@ -38,14 +38,14 @@ def test_improvement_min_mode() -> None:
 def test_stops_after_patience_exhausted() -> None:
     es = _es(mode="max", patience=2)
     assert es.should_stop(_metrics(0.5)) is False  # epoch 1, best
-    assert es.should_stop(_metrics(0.4)) is False  # 1 без улучшения, ждём
-    assert es.should_stop(_metrics(0.4)) is True  # 2 без улучшения == patience → стоп
+    assert es.should_stop(_metrics(0.4)) is False  # 1 epoch without improvement, keep waiting
+    assert es.should_stop(_metrics(0.4)) is True  # 2 epochs without improvement == patience -> stop
 
 
 def test_min_delta_blocks_marginal_improvement() -> None:
     es = _es(mode="max", patience=1, min_delta=0.1)
     es.should_stop(_metrics(0.5))
-    # 0.55 не превышает 0.5 + 0.1 → не улучшение
+    # 0.55 does not exceed 0.5 + 0.1 -> not an improvement
     assert es.should_stop(_metrics(0.55)) is True
 
 

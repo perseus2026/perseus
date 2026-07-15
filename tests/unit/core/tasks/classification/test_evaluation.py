@@ -1,4 +1,4 @@
-"""Тесты метрик классификации и Evaluator."""
+"""Tests for classification metrics and Evaluator."""
 
 import polars as pl
 import pytest
@@ -17,15 +17,15 @@ from perseus.core.tasks.classification.evaluation import (
 
 @pytest.fixture
 def binary_samples() -> pl.DataFrame:
-    # target ∈ {a, b}; prediction — struct с вероятностями по меткам
+    # target in {a, b}; prediction is a struct with per-label probabilities
     return pl.DataFrame(
         {
             "target": ["a", "b", "a", "b"],
             "prediction": [
-                {"a": 0.9, "b": 0.1},  # → a (верно)
-                {"a": 0.2, "b": 0.8},  # → b (верно)
-                {"a": 0.4, "b": 0.6},  # → b (неверно)
-                {"a": 0.3, "b": 0.7},  # → b (верно)
+                {"a": 0.9, "b": 0.1},  # -> a (correct)
+                {"a": 0.2, "b": 0.8},  # -> b (correct)
+                {"a": 0.4, "b": 0.6},  # -> b (incorrect)
+                {"a": 0.3, "b": 0.7},  # -> b (correct)
             ],
         },
     )
@@ -33,7 +33,7 @@ def binary_samples() -> pl.DataFrame:
 
 @pytest.fixture
 def prepared(binary_samples: pl.DataFrame) -> pl.DataFrame:
-    # most_probable_label вычисляется в _prepare_samples
+    # most_probable_label is computed in _prepare_samples
     return Evaluator({})._prepare_samples(binary_samples, None)
 
 
@@ -61,8 +61,8 @@ def test_recall_precision_f1_match_sklearn(prepared: pl.DataFrame) -> None:
 
 
 def test_threshold_path_binarizes_target(prepared: pl.DataFrame) -> None:
-    # threshold: y_true = (target == pos_label), y_pred = (P(pos) > threshold) — оба bool.
-    # P(b) = [0.1, 0.8, 0.6, 0.7] > 0.5 → [F, T, T, T]; target == b → [F, T, F, T] → accuracy 3/4
+    # threshold: y_true = (target == pos_label), y_pred = (P(pos) > threshold) -- both bool.
+    # P(b) = [0.1, 0.8, 0.6, 0.7] > 0.5 -> [F, T, T, T]; target == b -> [F, T, F, T] -> accuracy 3/4
     metric = Accuracy(threshold=0.5, pos_label="b")
     expected = accuracy_score([False, True, False, True], [False, True, True, True])
     assert metric.calculate(prepared, None) == pytest.approx(expected)
@@ -70,9 +70,9 @@ def test_threshold_path_binarizes_target(prepared: pl.DataFrame) -> None:
 
 
 def test_threshold_path_with_pos_label_metric(prepared: pl.DataFrame) -> None:
-    # для recall_score (есть параметр pos_label) он подменяется на True после бинаризации
+    # for recall_score (which has a pos_label parameter) it is replaced with True after binarization
     metric = Recall(threshold=0.5, pos_label="b")
-    # y_true=[F,T,F,T], y_pred=[F,T,T,T] → recall по классу True: TP=2, FN=0 → 1.0
+    # y_true=[F,T,F,T], y_pred=[F,T,T,T] -> recall for class True: TP=2, FN=0 -> 1.0
     assert metric.calculate(prepared, None) == pytest.approx(1.0)
 
 

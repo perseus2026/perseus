@@ -1,4 +1,4 @@
-"""Тесты PLE-энкодера (квантильное биннинг-кодирование числовых фич)."""
+"""Tests for the PLE encoder (quantile binning encoding of numeric features)."""
 
 import polars as pl
 import torch
@@ -47,8 +47,8 @@ class TestPreprocessor:
     def test_dynamic_transform_min_is_zeros_max_is_ones(self) -> None:
         pre = self._fitted([1.0, 2.0, 3.0, 4.0, 5.0], max_bins=4)
         out = pre.dynamic_transform(pl.Series([1.0, 5.0], dtype=pl.Float32))
-        assert torch.allclose(out[0], torch.zeros(pre.num_bins))  # минимум → все бины 0
-        assert torch.allclose(out[1], torch.ones(pre.num_bins))  # максимум → все бины 1
+        assert torch.allclose(out[0], torch.zeros(pre.num_bins))  # minimum → all bins 0
+        assert torch.allclose(out[1], torch.ones(pre.num_bins))  # maximum → all bins 1
 
     def test_save_load_roundtrip(self, tmp_path) -> None:
         pre = self._fitted([1.0, 2.0, 3.0, 4.0, 5.0])

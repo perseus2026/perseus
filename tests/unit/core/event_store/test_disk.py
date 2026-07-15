@@ -1,4 +1,4 @@
-"""Тесты disk-бэкенда event store (Arrow-файл)."""
+"""Tests for the disk backend of the event store (Arrow file)."""
 
 import datetime as dt
 

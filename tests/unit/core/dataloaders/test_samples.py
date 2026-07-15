@@ -1,4 +1,4 @@
-"""Тесты dataloaders.samples: _pad_sequences, _collate_samples, __getitem__, _init_worker."""
+"""Tests for dataloaders.samples: _pad_sequences, _collate_samples, __getitem__, _init_worker."""
 
 import datetime as dt
 import os
@@ -31,7 +31,7 @@ class TestPadSequences:
     def test_pad_2d(self) -> None:
         out = _pad_sequences([torch.ones(3, 2), torch.ones(1, 2)], side="left")
         assert out.shape == (2, 3, 2)
-        # первая строка второго элемента дополнена нулями слева
+        # the first row of the second element is left-padded with zeros
         assert out[1, 0].tolist() == [0.0, 0.0]
 
 

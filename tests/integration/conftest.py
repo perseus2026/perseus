@@ -1,7 +1,7 @@
-"""Билдеры для изолированных смоук-тестов api-этапов.
+"""Builders for isolated smoke tests of the api stages.
 
-Собирают синтетический event_hub-источник (parquet, разложенный по партициям тем же
-murmur-хешем, что и pipeline) + готовые Prepared/Trained/Dataset на classification-задаче.
+Assemble a synthetic event_hub source (parquet, partitioned with the same murmur hash as the
+pipeline) plus ready-made Prepared/Trained/Dataset for a classification task.
 """
 
 import datetime as dt
@@ -35,7 +35,7 @@ def partition_of(client_id: str) -> int:
 
 
 def setup_purchase_source(root: Path, clients: list[str]) -> None:
-    """Раскладывает события purchase по партиционным parquet-файлам source-а."""
+    """Distributes purchase events across the source's partitioned parquet files."""
     events = pl.DataFrame(
         {
             "client_id": [c for c in clients for _ in range(2)],
@@ -66,7 +66,7 @@ def build_trained() -> ckpt.Trained:
 
 
 def build_dataset(tmp_path: Path) -> Dataset:
-    """Dataset с disk-event-store: train c1,c2 / test c3, события — целочисленные индексы."""
+    """Dataset with a disk event store: train c1,c2 / test c3, events are integer indices."""
     store = EventStore(tmp_path / "events", backend="disk")
     with store.open_writer() as writer:
         writer.write(

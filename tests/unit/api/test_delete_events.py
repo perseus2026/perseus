@@ -1,4 +1,4 @@
-"""Тесты api.delete_events: полное удаление и удаление по диапазону дат."""
+"""Tests for api.delete_events: full deletion and deletion by date range."""
 
 import datetime as dt
 import logging
@@ -17,7 +17,7 @@ def storage(tmp_path, monkeypatch):
 
 
 def _seed() -> None:
-    """purchase-события за три дня: 01-01, 01-02, 01-03."""
+    """purchase events over three days: 01-01, 01-02, 01-03."""
     events = pl.DataFrame(
         {
             "client_id": ["c1", "c1", "c2"],
@@ -56,14 +56,14 @@ def test_delete_all(storage) -> None:
 def test_delete_from(storage) -> None:
     _seed()
     delete_events("purchase", source="event_hub", date_from=dt.date(2024, 1, 2))
-    # удалены даты >= 01-02, остаётся только 01-01
+    # dates >= 01-02 are deleted, only 01-01 remains
     assert _dates(storage) == ["2024-01-01"]
 
 
 def test_delete_to(storage) -> None:
     _seed()
     delete_events("purchase", source="event_hub", date_to=dt.date(2024, 1, 2))
-    # удалены даты <= 01-02, остаётся только 01-03
+    # dates <= 01-02 are deleted, only 01-03 remains
     assert _dates(storage) == ["2024-01-03"]
 
 
@@ -75,5 +75,5 @@ def test_delete_range(storage) -> None:
         date_from=dt.date(2024, 1, 2),
         date_to=dt.date(2024, 1, 2),
     )
-    # удалена только середина диапазона
+    # only the middle of the range is deleted
     assert _dates(storage) == ["2024-01-01", "2024-01-03"]

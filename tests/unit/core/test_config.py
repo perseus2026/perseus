@@ -1,4 +1,4 @@
-"""Тесты pydantic-конфига: валидация, инварианты model_post_init, save/load, merge."""
+"""Tests for the pydantic config: validation, model_post_init invariants, save/load, merge."""
 
 import typing as t
 
@@ -9,7 +9,7 @@ from perseus.core.config import Config, _deep_merge
 
 def test_minimal_config_validates(minimal_config_dict: dict[str, t.Any]) -> None:
     config = Config.model_validate(minimal_config_dict)
-    # event-encoder и event-feature добавляются автоматически
+    # the event encoder and event feature are added automatically
     assert "event" in config.encoders
     assert config.encoders["event"].type == "id"
     assert "event" in config.features
@@ -30,7 +30,7 @@ def test_inline_encoder_is_lifted_into_encoders(minimal_config_dict: dict[str, t
     }
     minimal_config_dict["events"] = {"purchase": {"attributes": {"city": None}}}
     config = Config.model_validate(minimal_config_dict)
-    # inline-энкодер переехал в encoders под именем фичи, а ссылка стала строкой
+    # the inline encoder was moved into encoders under the feature name, and the reference became a string
     assert "city" in config.encoders
     assert config.features["city"].encoder == "city"
 
@@ -42,7 +42,7 @@ def test_multi_attribute_requires_max_tokens(minimal_config_dict: dict[str, t.An
 
 
 def test_unused_attribute_raises(minimal_config_dict: dict[str, t.Any]) -> None:
-    # объявлен атрибут "city", но нет фичи для него
+    # the "city" attribute is declared, but there is no feature for it
     minimal_config_dict["events"] = {"purchase": {"attributes": {"city": None}}}
     with pytest.raises(ValueError, match="unused"):
         Config.model_validate(minimal_config_dict)

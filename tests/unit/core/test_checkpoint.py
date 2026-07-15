@@ -1,4 +1,4 @@
-"""Тесты checkpoint: Prepared и Trained save/load round-trip."""
+"""Checkpoint tests: Prepared and Trained save/load round-trip."""
 
 import polars as pl
 

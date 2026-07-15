@@ -1,8 +1,8 @@
-"""Тесты метрик ранжирования.
+"""Tests for ranking metrics.
 
-Метрики работают на «подготовленных» samples с колонками qid/item/relevance/score
-(результат Evaluator._prepare_samples). Здесь они тестируются напрямую, а artifacts
-подменяется лёгким объектом с атрибутом .items.
+The metrics operate on "prepared" samples with qid/item/relevance/score columns
+(the result of Evaluator._prepare_samples). Here they are tested directly, and artifacts
+is replaced with a lightweight object holding an .items attribute.
 """
 
 import types
@@ -51,7 +51,7 @@ def ranked() -> pl.DataFrame:
 
 
 def test_hit_rate_at_1(ranked: pl.DataFrame) -> None:
-    # qid0 top1=A(rel1)→hit; qid1 top1=D(rel0)→miss
+    # qid0 top1=A(rel1)->hit; qid1 top1=D(rel0)->miss
     assert HitRateAtK(k=1).calculate(ranked, None) == pytest.approx(0.5)
 
 
@@ -60,13 +60,13 @@ def test_hit_rate_at_2(ranked: pl.DataFrame) -> None:
 
 
 def test_mrr_is_mean_reciprocal_rank(ranked: pl.DataFrame) -> None:
-    # qid0: первый релевантный на позиции 1 → 1/1; qid1: на позиции 2 → 1/2.
+    # qid0: first relevant item at position 1 -> 1/1; qid1: at position 2 -> 1/2.
     # MRR = (1.0 + 0.5) / 2 = 0.75
     assert MrrAtK(k=3).calculate(ranked, None) == pytest.approx(0.75)
 
 
 def test_mrr_zero_when_relevant_outside_top_k() -> None:
-    # релевантный айтем есть, но вне top-1 → вклад 0
+    # a relevant item exists but is outside top-1 -> contributes 0
     samples = pl.DataFrame(
         {
             "qid": [0, 0],
@@ -79,17 +79,17 @@ def test_mrr_zero_when_relevant_outside_top_k() -> None:
 
 
 def test_precision_at_k(ranked: pl.DataFrame) -> None:
-    # qid0: top2=[A(rel1),B(rel0)] → 1 релевантный /2 =0.5; qid1: top2=[D(0),E(2)] →1/2=0.5
+    # qid0: top2=[A(rel1),B(rel0)] -> 1 relevant /2 =0.5; qid1: top2=[D(0),E(2)] ->1/2=0.5
     assert PrecisionAtK(k=2).calculate(ranked, None) == pytest.approx(0.5)
 
 
 def test_recall_at_k(ranked: pl.DataFrame) -> None:
-    # qid0: 1 релевантный найден из 1 → 1.0; qid1: 1 из 1 → 1.0
+    # qid0: 1 relevant found out of 1 -> 1.0; qid1: 1 of 1 -> 1.0
     assert RecallAtK(k=2).calculate(ranked, None) == pytest.approx(1.0)
 
 
 def test_ndcg_perfect_ranking_is_one() -> None:
-    # порядок по score совпадает с порядком по relevance → NDCG = 1.0
+    # order by score matches order by relevance -> NDCG = 1.0
     samples = pl.DataFrame(
         {
             "qid": [0, 0, 0],
@@ -152,7 +152,7 @@ def test_coverage_at_k(ranked: pl.DataFrame) -> None:
         },
     )
     artifacts = _artifacts(pl.DataFrame({"item": ["A", "B", "C", "D"]}))
-    # рекомендованы distinct {A,B,C}=3 из 4 уникальных → 0.75
+    # recommended distinct {A,B,C}=3 out of 4 unique -> 0.75
     assert CoverageAtK(k=2).calculate(samples, artifacts) == pytest.approx(0.75)
 
 
@@ -165,7 +165,7 @@ def test_max_streak_at_k() -> None:
             "score": [0.9, 0.5, 0.8, 0.3],
         },
     )
-    # A,B → cat [x,x] streak 2; A,C → cat [x,y] streak 1; mean = 1.5
+    # A,B -> cat [x,x] streak 2; A,C -> cat [x,y] streak 1; mean = 1.5
     artifacts = _artifacts(pl.DataFrame({"item": ["A", "B", "C"], "cat": ["x", "x", "y"]}))
     assert MaxStreakAtK(k=2, feature="cat").calculate(samples, artifacts) == pytest.approx(1.5)
 
@@ -179,7 +179,7 @@ def test_entropy_at_k() -> None:
             "score": [0.9, 0.5, 0.8, 0.3],
         },
     )
-    # qid0 cats [x,x] → энтропия 0; qid1 cats [x,y] → энтропия 1; mean = 0.5
+    # qid0 cats [x,x] -> entropy 0; qid1 cats [x,y] -> entropy 1; mean = 0.5
     artifacts = _artifacts(pl.DataFrame({"item": ["A", "B", "C"], "cat": ["x", "x", "y"]}))
     assert EntropyAtK(k=2, feature="cat").calculate(samples, artifacts) == pytest.approx(0.5)
 
@@ -231,7 +231,7 @@ def binary_ranked() -> pl.DataFrame:
 
 
 def test_sklearn_metrics(binary_ranked: pl.DataFrame) -> None:
-    # threshold 0.5 → pred [T,F,F,T]; true [1,0,1,0] → accuracy 2/4 = 0.5
+    # threshold 0.5 -> pred [T,F,F,T]; true [1,0,1,0] -> accuracy 2/4 = 0.5
     assert Accuracy(label="click").calculate(binary_ranked, None) == pytest.approx(0.5)
     assert 0.0 <= Precision(label="click").calculate(binary_ranked, None) <= 1.0
     assert 0.0 <= Recall(label="click").calculate(binary_ranked, None) <= 1.0

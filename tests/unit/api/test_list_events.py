@@ -1,4 +1,4 @@
-"""Тесты api.list_events: перечисление доступных событий источника."""
+"""Tests for api.list_events: listing the events available in a source."""
 
 import datetime as dt
 import logging
@@ -41,7 +41,7 @@ def test_logs_summary_per_event(storage, caplog) -> None:
         list_events(source="event_hub")
 
     text = caplog.text
-    # по строке на каждый тип события, с диапазоном дат и атрибутами без служебных колонок
+    # one line per event type, with the date range and attributes excluding service columns
     assert "purchase events available" in text
     assert "view events available" in text
     assert "2024-01-01" in text

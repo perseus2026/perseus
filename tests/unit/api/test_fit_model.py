@@ -1,4 +1,4 @@
-"""Пошаговые тесты api.fit_model (init/create-шаги; полный цикл обучения не запускается)."""
+"""Step-by-step tests for api.fit_model (init/create steps; the full training loop is not run)."""
 
 import logging
 
@@ -178,4 +178,4 @@ def test_train_test_epoch_and_save_load(accelerator, prepared_checkpoint, datase
     assert "overall" in metrics["accuracy"]
 
     _unwrap(accelerator, embedders, backbone, layer)
-    _load_model(1, tmp_path, embedders, backbone, layer)  # не должно падать
+    _load_model(1, tmp_path, embedders, backbone, layer)  # should not raise

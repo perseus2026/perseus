@@ -1,4 +1,4 @@
-"""Общие билдеры для пошаговых тестов api-слоя (classification, id-энкодер событий)."""
+"""Shared builders for step-by-step tests of the api layer (classification, event id encoder)."""
 
 import datetime as dt
 
@@ -100,8 +100,8 @@ def dataset(event_store_with_events) -> Dataset:
             {"client_id": ["c1", "c2"], "timestamp": [dt.datetime(2024, 2, 1)] * 2, "target": [0, 1]},
         ),
         train_artifacts=ClsArtifacts(),
-        # test target — строковая метка (как в pipeline: test-таргет не статик-трансформируется),
-        # чтобы evaluator сравнивал её с most_probable_label
+        # test target — a string label (as in the pipeline: the test target is not statically transformed),
+        # so that the evaluator compares it against most_probable_label
         test_samples=pl.DataFrame(
             {"client_id": ["c3"], "timestamp": [dt.datetime(2024, 2, 1)], "target": ["a"]},
         ),

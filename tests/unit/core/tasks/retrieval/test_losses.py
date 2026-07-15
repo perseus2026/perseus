@@ -1,4 +1,4 @@
-"""Тесты лоссов retrieval: CrossEntropy, ScalableCrossEntropy."""
+"""Tests for retrieval losses: CrossEntropy, ScalableCrossEntropy."""
 
 import pytest
 import torch
@@ -9,7 +9,7 @@ from perseus.core.tasks.retrieval._losses import CrossEntropy, ScalableCrossEntr
 def _inputs(num_users: int = 4, num_items: int = 6, dim: int = 4):
     user_embeddings = torch.randn(num_users, dim)
     item_embeddings = torch.randn(num_items, dim)
-    # каждый пользователь имеет один позитив (item i % num_items)
+    # each user has one positive (item i % num_items)
     labels = torch.zeros(num_users, num_items)
     for u in range(num_users):
         labels[u, u % num_items] = 1.0

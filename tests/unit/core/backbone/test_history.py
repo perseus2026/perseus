@@ -1,6 +1,6 @@
-"""Тесты history-агрегаторов backbone (forward shape).
+"""Tests for backbone history aggregators (forward shape).
 
-mamba не тестируется: требует mamba_ssm (CUDA/triton), на CPU/macOS недоступен.
+mamba is not tested: it requires mamba_ssm (CUDA/triton), which is unavailable on CPU/macOS.
 """
 
 import pytest
@@ -22,7 +22,7 @@ CONFIGS = {
 
 def _inputs() -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
     embeddings = torch.randn(2, 4, DIM)
-    # в production позиции имеют dtype int32 (dataloaders/samples.py: .to_torch().int())
+    # in production, positions have dtype int32 (dataloaders/samples.py: .to_torch().int())
     positions = torch.tensor([[1, 2, 3, 4], [1, 2, 3, 0]], dtype=torch.int32)
     timestamps = torch.tensor([[1.0, 2.0, 3.0, 4.0], [1.0, 2.0, 3.0, 0.0]])
     mask = torch.zeros(2, 4, 4, dtype=torch.bool)

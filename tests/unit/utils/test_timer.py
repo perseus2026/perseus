@@ -1,4 +1,4 @@
-"""Тест декоратора timer."""
+"""Tests for the timer decorator."""
 
 import contextlib
 import logging
