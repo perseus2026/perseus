@@ -186,6 +186,7 @@ def _fit_task_preprocessor(
         train_samples["target"],
         train_artifacts,
         artifacts_feature_to_observer,
+        **config.task.preprocessor,
     )
 
 
