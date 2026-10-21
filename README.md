@@ -2,6 +2,10 @@
 
 A framework for training personalization models over heterogeneous sequences of user events, for any downstream task.
 
+## Paper
+
+[Perseus: A Demo of Modular Personalization over Heterogeneous Event Sequences](https://dl.acm.org/doi/10.1145/3773078.3841295) was accepted to RecSys 2026.
+
 ## Overview
 
 Perseus turns a user's raw event history into a single embedding that describes the user at a point in time, and trains a task-specific head on top of it.
@@ -180,3 +184,19 @@ Yes. All three are extensible through the library interface.
 ## License
 
 Licensed under the [Apache License 2.0](LICENSE).
+
+## Citation
+
+```bibtex
+@inbook{10.1145/3773078.3841295,
+author = {Babkin, Andrei and Nikiforova, Anna and Liakhnovich, Kiryl and Kurdun, Maryia and Lashinin, Oleg and Ananyeva, Marina},
+title = {Perseus: A Demo of Modular Personalization over Heterogeneous Event Sequences},
+year = {2026},
+isbn = {9798400722844},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3773078.3841295},
+pages = {1820–1822},
+numpages = {3}
+}
+```
